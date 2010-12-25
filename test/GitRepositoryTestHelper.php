@@ -1,11 +1,9 @@
 <?php
 
-require_once dirname(__FILE__).'/../lib/phpGitRepo.php';
-
 /**
  *
  * @param lime_test $t
- * @return phpGitRepo the git repo
+ * @return Git\Repository the git repo
  */
 function _createTmpGitRepo(lime_test $t, array $options = array())
 {
@@ -14,7 +12,7 @@ function _createTmpGitRepo(lime_test $t, array $options = array())
 
   try
   {
-    new phpGitRepo($repoDir, true, $options);
+    new Git\Repository($repoDir, true, $options);
     $t->fail($repoDir.' is not a valid git repository');
   }
   catch(InvalidArgumentException $e)
@@ -26,8 +24,8 @@ function _createTmpGitRepo(lime_test $t, array $options = array())
   exec('git init '. escapeshellarg($repoDir));
   $t->ok(is_dir($repoDir.'/.git'), $repoDir.' is a Git repo');
 
-  $repo = new phpGitRepo($repoDir, true, $options);
-  $t->isa_ok($repo, 'phpGitRepo', $repoDir.' is a valid git repo');
+  $repo = new Git\Repository($repoDir, true, $options);
+  $t->isa_ok($repo, 'Git\Repository', $repoDir.' is a valid git repo');
 
   $originalRepoDir = dirname(__FILE__).'/repo';
   foreach(array('README.markdown', 'index.php') as $file)

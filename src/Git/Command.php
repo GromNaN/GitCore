@@ -1,6 +1,10 @@
 <?php
 
-class phpGitRepoCommand
+namespace Git;
+
+use Git\Exception\GitRuntimeException;
+
+class Command
 {
     /**
      * @var string Real filesystem path of the repository
@@ -67,5 +71,3 @@ class phpGitRepoCommand
         return $output;
     }
 }
-
-class GitRuntimeException extends RuntimeException {}

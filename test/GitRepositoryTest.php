@@ -1,7 +1,8 @@
 <?php
 
-require_once dirname(__FILE__).'/vendor/lime.php';
-require_once dirname(__FILE__).'/phpGitRepoTestHelper.php';
+require_once __DIR__.'/vendor/lime.php';
+require_once __DIR__.'/../bootstrap.php';
+require_once __DIR__.'/GitRepositoryTestHelper.php';
 
 $t = new lime_test();
 
@@ -25,7 +26,7 @@ catch(RuntimeException $e)
   $t->pass('Can not checkout master');
 }
 
-$repo->git('remote add origin git://github.com/ornicar/php-git-repo.git');
+$repo->git('remote add origin git://github.com/JeromeTam/php-git-repo.git');
 
 $repo->git('pull origin master');
 
@@ -83,7 +84,7 @@ $repoDir = sys_get_temp_dir().'/php-git-repo/'.uniqid();
 mkdir($repoDir);
 try
 {
-  $repo = phpGitRepo::create($repoDir);
+  $repo = Git\Repository::create($repoDir);
   $t->pass('Create a new Git repository in filesystem');
 }
 catch(InvalidArgumentException $e)
@@ -105,8 +106,8 @@ $t->is(count($log), 2);
 $commit = $log[0];
 $t->ok(is_array($commit));
 $t->is($commit['message'], 'Remove README');
-$t->is($commit['author']['name'], 'ornicar');
-$t->is($commit['commiter']['name'], 'ornicar');
+$t->is($commit['author']['name'], 'Jérôme Tam');
+$t->is($commit['commiter']['name'], 'Jérôme Tam');
 $commit = $log[1];
 $t->is($commit['message'], 'Add README');
 

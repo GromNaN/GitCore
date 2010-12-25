@@ -1,22 +1,22 @@
 <?php
 
-/**
- * Include the command class
- */
-require_once(dirname(__FILE__).'/phpGitRepoCommand.php');
+namespace Git;
+
+use Git\Exception\InvalidGitRepositoryDirectoryException;
 
 /**
  * Simple PHP wrapper for Git repository
  *
- * @link      http://github.com/ornicar/php-git-repo
+ * @link      http://github.com/JeromeTam/php-git-repo
  * @version   1.3.0
  * @author    Thibault Duplessis <thibault.duplessis at gmail dot com>
+ * @author    Jérôme Tamarelle <http://jerome.tamarelle.net/>
  * @license   MIT License
  *
- * Documentation: http://github.com/ornicar/php-git-repo/blob/master/README.markdown
- * Tickets:       http://github.com/ornicar/php-git-repo/issues
+ * Documentation: http://github.com/JeromeTam/php-git-repo/blob/master/README.markdown
+ * Tickets:       http://github.com/JeromeTam/php-git-repo/issues
  */
-class phpGitRepo
+class Repository
 {
     /**
      * @var string  local repository directory
@@ -35,8 +35,9 @@ class phpGitRepo
     protected $options;
 
     protected static $defaultOptions = array(
-        'command_class'   => 'phpGitRepoCommand', // class used to create a command
-        'git_executable'  => '/usr/bin/git'       // path of the executable on the server
+        'command_class'   => 'Git\Command', // class used to create a command
+//        'git_executable'  => '/usr/bin/git'       // path of the executable on the server
+        'git_executable'  => '/opt/local/bin/git'       // path of the executable on the server
     );
 
     /**
@@ -52,7 +53,7 @@ class phpGitRepo
         $this->debug    = $debug;
         $this->options  = array_merge(self::$defaultOptions, $options);
 
-        $this->checkIsValidGitRepo();
+        $this->validate();
     }
 
     /**
@@ -157,16 +158,6 @@ class phpGitRepo
     }
 
     /**
-     * Check if a directory is a valid Git repository
-     */
-    public function checkIsValidGitRepo()
-    {
-        if(!file_exists($this->dir.'/.git/HEAD')) {
-            throw new InvalidGitRepositoryDirectoryException($this->dir.' is not a valid Git repository');
-        }
-    }
-
-    /**
      * Run any git command, like "status" or "checkout -b mybranch origin/mybranch"
      *
      * @throws  RuntimeException
@@ -194,8 +185,14 @@ class phpGitRepo
     {
         return $this->dir;
     }
-}
 
-class InvalidGitRepositoryDirectoryException extends InvalidArgumentException
-{
+    /**
+     * Check if a directory is a valid Git repository
+     */
+    protected function validate()
+    {
+        if(!file_exists($this->dir.'/.git/HEAD')) {
+            throw new InvalidGitRepositoryDirectoryException($this->dir.' is not a valid Git repository');
+        }
+    }
 }
