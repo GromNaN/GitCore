@@ -127,13 +127,15 @@ class Repository
     /**
      * Return the result of `git log` formatted in a PHP array
      *
+     * @param integer $nbCommits Limit of commits to get
+     * @param string $filename Optional file/dir name to filter commits
      * @return array list of commits and their properties
      **/
-    public function getCommits($nbCommits = 10)
+    public function getCommits($nbCommits = 10, $filename = '')
     {
         $dateFormat = 'iso';
         $format = '"%H|%T|%an|%ae|%ad|%cn|%ce|%cd|%s"';
-        $output = $this->git('log -n %d --date=%s --format=format:%s', $nbCommits, $dateFormat, $format);
+        $output = $this->git('log -n %d --date=%s --format=format:%s %s', $nbCommits, $dateFormat, $format, $filename);
         $commits = array();
         foreach(explode("\n", $output) as $line) {
             $infos = explode('|', $line);
