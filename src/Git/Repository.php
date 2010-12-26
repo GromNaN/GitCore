@@ -133,7 +133,7 @@ class Repository
     {
         $dateFormat = 'iso';
         $format = '"%H|%T|%an|%ae|%ad|%cn|%ce|%cd|%s"';
-        $output = $this->git(sprintf('log -n %d --date=%s --format=format:%s', $nbCommits, $dateFormat, $format));
+        $output = $this->git('log -n %d --date=%s --format=format:%s', $nbCommits, $dateFormat, $format);
         $commits = array();
         foreach(explode("\n", $output) as $line) {
             $infos = explode('|', $line);
@@ -166,9 +166,12 @@ class Repository
      */
     public function git($commandString)
     {
+        // Use sprintf behavior
+        $commandString = call_user_func_array('sprintf', func_get_args());
+        
         // clean commands that begin with "git "
         $commandString = preg_replace('/^git\s/', '', $commandString);
-
+        
         $commandString = $this->options['git_executable'].' '.$commandString;
 
         $command = new $this->options['command_class']($this->dir, $commandString, $this->debug);
