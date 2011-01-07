@@ -60,8 +60,10 @@ class File
 
     public function setContent($content)
     {
-        $this->content = $content;
-        $this->modified = true;
+        if($content != $this->content) {
+            $this->content = $content;
+            $this->modified = true;
+        }
     }
 
     public function getContent()
