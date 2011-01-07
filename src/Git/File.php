@@ -106,6 +106,8 @@ class File
 
     public function getCommits($nbCommits = 10)
     {
-        return $this->repository->getCommits($nbCommits, $this->filename);
+        $output = $this->git('log "%s" -n %d --date=%s --format=format:%s', $this->filename, $nbCommits, Commit::DATE_FORMAT, Commit::FORMAT);
+        
+        return Commit::parse($output);
     }
 }
