@@ -83,8 +83,7 @@ class File
         if ($this->isModified()) {
             file_put_contents($this->getFullFilename(), $this->getContent());
             $this->modified = false;
-            $this->repository->git('add "%s"', $this->filename);
-            $this->repository->git('commit -m "%s"', $message);
+            $this->repository->git('commit "%s" -m "%s"', $this->filename, $message);
         }
     }
 
