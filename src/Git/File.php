@@ -2,8 +2,6 @@
 
 namespace Git;
 
-use Git\Repository;
-
 class File
 {
 
@@ -12,7 +10,7 @@ class File
      */
     protected $filename;
     /**
-     * @var Repository the file repository
+     * @var Repository The Git repository
      */
     protected $repository;
     /**
@@ -55,7 +53,7 @@ class File
         return!file_exists($this->getFullFilename());
     }
 
-    public function isDirectory()
+    public function isDir()
     {
         return is_dir($this->filename);
     }
@@ -67,7 +65,7 @@ class File
     }
 
     public function getContent()
-    {
+    {   
         if (!$this->content) {
             if ($this->isNew()) {
                 $this->content = '';
@@ -100,14 +98,15 @@ class File
         if (!$this->isNew()) {
             $this->repository->git('mv "%s" "%s"', $this->filename, $target);
             $this->repository->git('commit -m "%s"', $message);
-        } 
+        }
         $this->filename = $target;
     }
 
     public function getCommits($nbCommits = 10)
     {
         $output = $this->git('log "%s" -n %d --date=%s --format=format:%s', $this->filename, $nbCommits, Commit::DATE_FORMAT, Commit::FORMAT);
-        
+
         return Commit::parse($output);
     }
+
 }
