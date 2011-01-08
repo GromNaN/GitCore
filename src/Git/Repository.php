@@ -10,11 +10,11 @@ use Git\Exception\InvalidGitRepositoryDirectoryException;
  * @link      http://github.com/JeromeTam/php-git-repo
  * @version   1.3.0
  * @author    Thibault Duplessis <thibault.duplessis at gmail dot com>
- * @author    Jérôme Tamarelle <http://jerome.tamarelle.net/>
+ *            Jérôme Tamarelle <http://jerome.tamarelle.net/>
  * @license   MIT License
  *
- * Documentation: http://github.com/JeromeTam/php-git-repo/blob/master/README.markdown
- * Tickets:       http://github.com/JeromeTam/php-git-repo/issues
+ * Documentation: http://github.com/GromNaN/php-git-repo/blob/master/README.markdown
+ * Tickets:       http://github.com/GromNaN/php-git-repo/issues
  */
 class Repository
 {
@@ -36,8 +36,7 @@ class Repository
 
     protected static $defaultOptions = array(
         'command_class'   => 'Git\Command', // class used to create a command
-//        'git_executable'  => '/usr/bin/git'       // path of the executable on the server
-        'git_executable'  => '/opt/local/bin/git'       // path of the executable on the server
+        'git_executable'  => 'command git'  // path of the executable on the server
     );
 
     /**
