@@ -1,7 +1,7 @@
-# PHP Git Repo
+# PHP 5.3 Git Repository
 
 Manage a Git repository with PHP.
-Provide an object oriented wrapper to run any Git command.
+Provide an object oriented wrapper to run any Git command and manage versioned files.
 
 ## Requirements
 
@@ -134,6 +134,8 @@ You may need to provide the path to the git executable.
     $repo = new Git\Repository('/path/to/the/git/repo', false, array('git_executable' => '/usr/bin/git'));
 
 On most Unix system, it's `/usr/bin/git`. On Windows, it may be `C:\Program Files\Git\bin`.
+
+If the executable is invalid, you will get a GitRuntimeException with code __127__.
 
 ### Change the command class
 

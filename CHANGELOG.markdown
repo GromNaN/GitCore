@@ -1,3 +1,10 @@
+v2.0.0 - 2011-01-08
+
+ * Use PHP 5.3 namespaces
+ * Added Git\File class
+ * Change Git\Repository::git() method to follow sprintf behavior.
+ * Add Git\Commit class to describe git-log
+
 v1.3.0 - 2010-07-22
 
  * Add phpGitRepo::getTags to get the list of tags
