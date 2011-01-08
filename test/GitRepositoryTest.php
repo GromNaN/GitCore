@@ -26,7 +26,7 @@ catch(RuntimeException $e)
   $t->pass('Can not checkout master');
 }
 
-$repo->git('remote add origin git://github.com/JeromeTam/php-git-repo.git');
+$repo->git('remote add origin git://github.com/GromNaN/php-git-repo.git');
 
 $repo->git('pull origin master');
 
@@ -104,7 +104,7 @@ $log = $repo->getCommits(7);
 $t->ok(is_array($log));
 $t->is(count($log), 2);
 $commit = $log[0];
-$t->ok(is_array($commit));
+$t->ok($commit instanceof Git\Commit);
 $t->is($commit->getMessage(), 'Remove README');
 $commit = $log[1];
 $t->is($commit->getMessage(), 'Add README');

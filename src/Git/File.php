@@ -54,7 +54,7 @@ class File
 
     public function isModified()
     {
-        return $this->modified;
+        return $this->modified || $this->isNew();
     }
 
     public function isNew()
@@ -89,7 +89,7 @@ class File
 
     public function save($message)
     {
-        if ($this->isModified() || $this->isNew()) {
+        if ($this->isModified()) {
             file_put_contents($this->getFullFilename(), $this->getContent());
             $this->modified = false;
             $this->repository->git('add %s', escapeshellarg($this->filename));
@@ -109,9 +109,10 @@ class File
     {
         if (!$this->isNew()) {
             $this->repository->git('mv %s %s', escapeshellarg($this->filename), escapeshellarg($target));
-            $this->commit($message);
-        }
+            $this->repository->git('add %s', escapeshellarg($target));
+        } 
         $this->filename = $target;
+        $this->commit($message);
     }
 
     public function commit($message)

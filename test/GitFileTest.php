@@ -12,7 +12,7 @@ $file = new Git\File($repo, 'FILE');
 $t->is(true, $file->isNew(), 'New file');
 $t->is($file->getContent(), '', 'Empty');
 $t->is($file->getFilename(), 'FILE', 'File name');
-$t->is($file->isModified(), false, 'File not modified');
+$t->is($file->isModified(), true, 'File created');
 
 $file->setContent('Lipsum');
 $t->is($file->getContent(), 'Lipsum', 'Not empty');
