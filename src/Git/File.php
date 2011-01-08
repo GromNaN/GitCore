@@ -10,6 +10,8 @@ namespace Git;
  * @author    Jérôme Tamarelle <http://jerome.tamarelle.net/>
  * @license   MIT License
  */
+use Git\Exception\InvalidCommitMessage;
+
 class File
 {
 
@@ -92,7 +94,7 @@ class File
         if ($this->isModified()) {
             file_put_contents($this->getFullFilename(), $this->getContent());
             $this->modified = false;
-            $this->repository->git('add %s', escapeshellarg($this->filename));
+            $this->repository->git('add %s', escapeshellarg($this->getFilename()));
             $this->commit($message);
         }
     }
@@ -100,7 +102,7 @@ class File
     public function delete($message)
     {
         if (!$this->isNew()) {
-            $this->repository->git('rm "%s"', $this->filename);
+            $this->repository->git('rm "%s"', $this->getFilename());
             $this->commit($message);
         }
     }
@@ -108,7 +110,7 @@ class File
     public function move($target, $message)
     {
         if (!$this->isNew()) {
-            $this->repository->git('mv %s %s', escapeshellarg($this->filename), escapeshellarg($target));
+            $this->repository->git('mv %s %s', escapeshellarg($this->getFilename()), escapeshellarg($target));
             $this->repository->git('add %s', escapeshellarg($target));
         } 
         $this->filename = $target;
@@ -118,9 +120,9 @@ class File
     public function commit($message)
     {
         if (empty($message)) {
-            throw new Exception('Commit message cannot empty.');
+            throw new InvalidCommitMessage(sprintf('Git commit message "%s" is not valid.', $message));
         }
-        $this->repository->git('commit %s -m %s', escapeshellarg($this->filename), escapeshellarg($message));
+        $this->repository->git('commit %s -m %s', escapeshellarg($this->getFilename()), escapeshellarg($message));
     }
 
     public function getCommits($nbCommits = 10)
