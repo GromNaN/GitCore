@@ -1,65 +1,58 @@
 <?php
 
+namespace Git;
+/**
+ * Git commit.
+ * Do not instanciate directly, use Git\Commit::parse($output) instead.
+ *
+ * @link      http://github.com/GromNaN/php-git-repo
+ * @version   2.0.0
+ * @author    Jérôme Tamarelle <http://jerome.tamarelle.net/>
+ * @license   MIT License
+ */
 class Commit
 {
+    /**
+     * Log output format that can be parsed by Commit::parse method.
+     */
     const FORMAT = '"%H|%T|%an|%ae|%ad|%cn|%ce|%cd|%s"';
+
+    /**
+     * Git date format to be parsed by \DateTime class.
+     */
     const DATE_FORMAT = 'iso';
 
     /**
-     *
+     * Parse the response of a git-log command.
+     * 
      * @param string $output
      * @return array<Commit> 
      */
     public static function parse($output)
     {
         $commits = array();
-        foreach (explode("\n", $output) as $line) {
-            $infos = explode('|', $line);
-            $commits[] = new Commit(array(
-                        'id' => $infos[0],
-                        'tree' => $infos[1],
-                        'author' => array(
-                            'name' => $infos[2],
-                            'email' => $infos[3]
-                        ),
-                        'authored_date' => $infos[4],
-                        'commiter' => array(
-                            'name' => $infos[5],
-                            'email' => $infos[6]
-                        ),
-                        'committed_date' => $infos[7],
-                        'message' => $infos[8]
-                    ));
+
+        if (!empty($output)) {
+            foreach (explode("\n", $output) as $line) {
+                $infos = explode('|', $line);
+                $commit = new Commit();
+                $commit->id = $infos[0];
+                $commit->tree = $infos[1];
+                $commit->author_name = $infos[2];
+                $commit->author_email = $infos[3];
+                $commit->authored_date = new \DateTime($infos[4]);
+                $commit->commiter_name = $infos[5];
+                $commit->commiter_email = $infos[6];
+                $commit->committed_date = new \DateTime($infos[7]);
+                $commit->message = $infos[8];
+                $commits[] = $commit;
+            }
         }
+
         return $commits;
     }
 
-    protected $id;
-    protected $tree;
-    protected $author;
-    protected $authored_date;
-    protected $commiter;
-    protected $committed_date;
-    protected $message;
-
     /**
-     * Constructor. 
-     * 
-     * @param array $data 
-     */
-    public function __construct(array $data)
-    {
-        $this->id = $data['id'] ? : null;
-        $this->tree = $data['tree'] ? : null;
-        $this->author = $data['author'] ? : null;
-        $this->authored_date = $data['authored_date'] ? new DateTime($data['authored_date']) : null;
-        $this->commiter = $data['commiter'] ? : null;
-        $this->committed_date = $data['committed_date'] ? new DateTime($data['committed_date']) : null;
-        $this->message = $data['message'] ? : null;
-    }
-
-    /**
-     *
      * @return string
      */
     public function getId()
@@ -68,7 +61,6 @@ class Commit
     }
 
     /**
-     *
      * @return string
      */
     public function getTree()
@@ -77,16 +69,22 @@ class Commit
     }
 
     /**
-     *
-     * @return array
+     * @return string
      */
-    public function getAuthor()
+    public function getAuthorName()
     {
-        return $this->author;
+        return $this->author_name;
     }
 
     /**
-     *
+     * @return string
+     */
+    public function getAuthorEmail()
+    {
+        return $this->author_email;
+    }
+
+    /**
      * @return \DateTime
      */
     public function getAuthoredDate()
@@ -95,16 +93,22 @@ class Commit
     }
 
     /**
-     *
-     * @return array
+     * @return string
      */
-    public function getCommiter()
+    public function getCommiterName()
     {
-        return $this->commiter;
+        return $this->commiter_name;
     }
 
     /**
-     *
+     * @return string
+     */
+    public function getCommiterEmail()
+    {
+        return $this->commiter_email;
+    }
+
+    /**
      * @return \DateTime
      */
     public function getCommittedDate()
@@ -113,11 +117,11 @@ class Commit
     }
 
     /**
-     *
      * @return string
      */
     public function getMessage()
     {
         return $this->message;
     }
+
 }

@@ -2,20 +2,27 @@
 
 namespace Git;
 
+/**
+ * File versioned in a Git repository.
+ *
+ * @link      http://github.com/GromNaN/php-git-repo
+ * @version   2.0.0
+ * @author    Thibault Duplessis <thibault.duplessis at gmail dot com>
+ * @license   MIT License
+ */
 use Git\Exception\GitRuntimeException;
 
 class Command
 {
+
     /**
      * @var string Real filesystem path of the repository
      */
     protected $dir;
-
     /**
      * @var string Git command to run
      */
     protected $commandString;
-
     /**
      * @var boolean Whether to enable debug mode or not
      * When debug mode is on, commands and their output are displayed
@@ -32,16 +39,16 @@ class Command
     {
         $commandString = trim($commandString);
 
-        $this->dir            = $dir;
-        $this->commandString  = $commandString;
-        $this->debug          = $debug;
+        $this->dir = $dir;
+        $this->commandString = $commandString;
+        $this->debug = $debug;
     }
 
     public function run()
     {
         $commandToRun = sprintf('cd %s && %s', escapeshellarg($this->dir), $this->commandString);
 
-        if($this->debug) {
+        if ($this->debug) {
             print $commandToRun."\n";
         }
 
@@ -49,25 +56,22 @@ class Command
         passthru($commandToRun, $returnVar);
         $output = ob_get_clean();
 
-        if($this->debug) {
+        if ($this->debug) {
             print $output."\n";
         }
 
-        if(0 !== $returnVar) {
+        if (0 !== $returnVar) {
             // Git 1.5.x returns 1 when running "git status"
-            if(1 === $returnVar && 0 === strncmp($this->commandString, 'git status', 10)) {
+            if (1 === $returnVar && 0 === strncmp($this->commandString, 'git status', 10)) {
                 // it's ok
-            }
-            else {
+            } else {
                 throw new GitRuntimeException(sprintf(
-                    'Command %s failed with code %s: %s',
-                    $commandToRun,
-                    $returnVar,
-                    $output
-                ), $returnVar);
+                                'Command %s failed with code %s: %s', $commandToRun, $returnVar, $output
+                        ), $returnVar);
             }
         }
 
         return $output;
     }
+
 }

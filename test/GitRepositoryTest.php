@@ -105,11 +105,9 @@ $t->ok(is_array($log));
 $t->is(count($log), 2);
 $commit = $log[0];
 $t->ok(is_array($commit));
-$t->is($commit['message'], 'Remove README');
-$t->is($commit['author']['name'], 'Jérôme Tam');
-$t->is($commit['commiter']['name'], 'Jérôme Tam');
+$t->is($commit->getMessage(), 'Remove README');
 $commit = $log[1];
-$t->is($commit['message'], 'Add README');
+$t->is($commit->getMessage(), 'Add README');
 
 $t->is_deeply($repo->getTags(), array(), 'No tags');
 $repo->git('tag -am "tag 1" first_tag');
