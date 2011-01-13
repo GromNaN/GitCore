@@ -65,6 +65,9 @@ class Command
             if (1 === $returnVar && 0 === strncmp($this->commandString, 'git status', 10)) {
                 // it's ok
             } else {
+                if(127 == $returnVar && empty($output)) { // Help for debugging
+                    $output = 'Invalid Git executable';
+                }
                 throw new GitRuntimeException(sprintf(
                                 'Command %s failed with code %s: %s', $commandToRun, $returnVar, $output
                         ), $returnVar);
