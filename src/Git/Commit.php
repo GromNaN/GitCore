@@ -15,7 +15,7 @@ class Commit
     /**
      * Log output format that can be parsed by Commit::parse method.
      */
-    const FORMAT = '"%H|%T|%an|%ae|%ad|%cn|%ce|%cd|%s"';
+    const FORMAT = '"%h|%t|%p|%an|%ae|%ad|%cn|%ce|%cd|%s"';
 
     /**
      * Git date format to be parsed by \DateTime class.
