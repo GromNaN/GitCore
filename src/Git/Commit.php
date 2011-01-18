@@ -1,6 +1,7 @@
 <?php
 
 namespace Git;
+
 /**
  * Git commit.
  * Do not instanciate directly, use Git\Commit::parse($output) instead.
@@ -51,6 +52,16 @@ class Commit
 
         return $commits;
     }
+
+    protected $id;
+    protected $tree;
+    protected $author_name;
+    protected $author_email;
+    protected $authored_date;
+    protected $commiter_name;
+    protected $commiter_email;
+    protected $committed_date;
+    protected $message;
 
     /**
      * @return string
