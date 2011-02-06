@@ -1,16 +1,14 @@
 <?php
 
-namespace Git;
+namespace Git\Core;
 
 /**
  * File versioned in a Git repository.
  *
- * @link      http://github.com/GromNaN/php-git-repo
- * @version   2.0.0
- * @author    Jérôme Tamarelle <http://jerome.tamarelle.net/>
+ * @author    Jérôme Tamarelle <jerome at tamarelle dot net>
  * @license   MIT License
  */
-use Git\Exception\InsufficientPermissionException;
+use Git\Core\Exception\InsufficientPermissionException;
 
 class File extends \SplFileInfo
 {
@@ -19,6 +17,7 @@ class File extends \SplFileInfo
      * @var Repository The Git repository
      */
     protected $repository;
+
     /**
      * @var string Actual contents of the file
      */
@@ -37,21 +36,43 @@ class File extends \SplFileInfo
         $this->setInfoClass(__CLASS__);
     }
 
+    /**
+     * Path of the file inside the repository
+     *
+     * @return string
+     */
     public function getRelativePathname()
     {
         return substr($this->getPathname(), strlen($this->repository->getDir()) + 1);
     }
 
+    /**
+     * Does the file already exists on the filesystem ?
+     *
+     * @return bool
+     */
     public function exists()
     {
         return \file_exists($this->getPathname());
     }
 
+    /**
+     * Replace the contents of the file by the given content.
+     * You must use File::save() method to effectively overwrite the file.
+     *
+     * @param string $contents
+     */
     public function setContents($contents)
     {
         $this->contents = $contents;
     }
 
+    /**
+     * Retreive the contents of the file.
+     *
+     * @param bool $noCache Force to load the contents from the file.
+     * @return string
+     */
     public function getContents($noCache = false)
     {
         if (null === $this->contents || $noCache) {
@@ -67,19 +88,22 @@ class File extends \SplFileInfo
         return $this->contents;
     }
 
+    /**
+     * Save the file contents.
+     */
     public function save()
     {
-        if(!$this->exists()) {
-            mkdir($this->getPath(), 0777, true);
-            if(!\is_writable($this->getPath())) {
+        if (!$this->exists()) {
+            mkdir($this->getPath(), 0777, true); // @todo Configurable default chmod
+            if (!\is_writable($this->getPath())) {
                 throw new InsufficientPermissionException(sprintf('Directory "%s" is not writable.', $this->getPath()));
             }
         } else {
-            if(!$this->isWritable()) {
+            if (!$this->isWritable()) {
                 throw new InsufficientPermissionException(sprintf('File "%s" is not writable.', $this->getPathname()));
             }
         }
-        
+
         \file_put_contents($this->getPathname(), $this->contents);
         $this->add();
     }
@@ -92,10 +116,7 @@ class File extends \SplFileInfo
      */
     public function getHistoricalContent($hash)
     {
-        $content = $this->repository->git('cat-file -p %s:%s',
-                        escapeshellarg($hash),
-                        escapeshellarg($this->getFilename()
-                ));
+        $content = $this->repository->git('cat-file -p %s:%s', escapeshellarg($hash), escapeshellarg($this->getFilename()));
     }
 
     /**
@@ -103,8 +124,7 @@ class File extends \SplFileInfo
      */
     public function add()
     {
-        $this->repository->git('add %s',
-                escapeshellarg($this->getRelativePathname())
+        $this->repository->git('add %s', escapeshellarg($this->getRelativePathname())
         );
     }
 
@@ -113,8 +133,7 @@ class File extends \SplFileInfo
      */
     public function delete()
     {
-        $this->repository->git('rm %s',
-                escapeshellarg($this->getRelativePathname())
+        $this->repository->git('rm %s', escapeshellarg($this->getRelativePathname())
         );
     }
 
@@ -133,15 +152,10 @@ class File extends \SplFileInfo
         }
 
         if (null === $author) {
-            $this->repository->git('commit --allow-empty --no-verify --message=%s -- %s',
-                    escapeshellarg($message),
-                    escapeshellarg($this->getRelativePathname())
+            $this->repository->git('commit --allow-empty --no-verify --message=%s -- %s', escapeshellarg($message), escapeshellarg($this->getRelativePathname())
             );
         } else {
-            $this->repository->git('commit --allow-empty --no-verify --message=%s --author=%s -- %s',
-                    escapeshellarg($message),
-                    escapeshellarg(strval($author)),
-                    escapeshellarg($this->getRelativePathname())
+            $this->repository->git('commit --allow-empty --no-verify --message=%s --author=%s -- %s', escapeshellarg($message), escapeshellarg(strval($author)), escapeshellarg($this->getRelativePathname())
             );
         }
     }
@@ -154,10 +168,7 @@ class File extends \SplFileInfo
      */
     public function log($nbCommits = 10)
     {
-        $output = $this->repository->git('log -n %d %s -- %s',
-                        (int) $nbCommits,
-                        Commit::FORMAT,
-                        escapeshellarg($this->getRelativePathname()));
+        $output = $this->repository->git('log -n %d %s -- %s', (int) $nbCommits, Commit::FORMAT, escapeshellarg($this->getRelativePathname()));
 
         return Commit::parse($this->repository, $output);
     }
@@ -173,22 +184,13 @@ class File extends \SplFileInfo
     public function diff($context = 2, $hash1 = null, $hash2 = null)
     {
         if (null === $hash1) {
-            $output = $this->repository->git('diff -U%d %s',
-                            (int) $context,
-                            escapeshellarg($this->getFilename())
+            $output = $this->repository->git('diff -U%d %s', (int) $context, escapeshellarg($this->getFilename())
             );
         } elseif (null === $hash2) {
-            $output = $this->repository->git('diff -U%d %s -- %s',
-                            (int) $context,
-                            escapeshellarg($hash1),
-                            escapeshellarg($this->getFilename())
+            $output = $this->repository->git('diff -U%d %s -- %s', (int) $context, escapeshellarg($hash1), escapeshellarg($this->getFilename())
             );
         } else {
-            $output = $this->repository->git('diff -U%d %s %s -- %s',
-                            (int) $context,
-                            escapeshellarg($hash1),
-                            escapeshellarg($hash2),
-                            escapeshellarg($this->getFilename())
+            $output = $this->repository->git('diff -U%d %s %s -- %s', (int) $context, escapeshellarg($hash1), escapeshellarg($hash2), escapeshellarg($this->getFilename())
             );
         }
 

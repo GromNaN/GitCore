@@ -1,6 +1,6 @@
 <?php
 
-namespace Git;
+namespace Git\Core;
 
 /**
  * A "blob" object is nothing but a chunk of binary data. It doesn't refer to
@@ -12,6 +12,8 @@ namespace Git;
  * independent of its location in the directory tree, and renaming a file does
  * not change the object that file is associated with.
  *
+ * @author    Jérôme Tamarelle <http://jerome.tamarelle.net/>
+ * @license   MIT License
  * @todo Implement streamContents methods to send large files directly to output
  */
 
@@ -30,7 +32,7 @@ class Blob extends GitObject
         parent::__construct($repository, $hash);
         $this->name = $name;
     }
-    
+
     /**
      * @return string
      */

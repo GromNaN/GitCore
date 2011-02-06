@@ -1,6 +1,6 @@
 <?php
 
-namespace Git;
+namespace Git\Core;
 
 /**
  * Git commit.
@@ -10,7 +10,6 @@ namespace Git;
  * @author    Jérôme Tamarelle <http://jerome.tamarelle.net/>
  * @license   MIT License
  */
-use Git\Repository;
 
 class Commit extends GitObject
 {
@@ -98,7 +97,7 @@ class Commit extends GitObject
      * The tree object, representing the contents of a directory
      * at a certain point in time.
      *
-     * @return Git\Tree
+     * @return Git\Core\Tree
      */
     public function getTree()
     {
@@ -115,7 +114,7 @@ class Commit extends GitObject
      * more than one. A commit with no parents is called a "root" commit, and
      * represents the initial revision of a project.
      *
-     * @return array<sha1>
+     * @return array<string>
      */
     public function getParentHashes()
     {
@@ -143,7 +142,7 @@ class Commit extends GitObject
     }
 
     /**
-     * @return Git\User
+     * @return Git\Core\User
      */
     public function getAuthor()
     {
@@ -159,7 +158,7 @@ class Commit extends GitObject
     }
 
     /**
-     * @return Git\User
+     * @return Git\Core\User
      */
     public function getCommitter()
     {

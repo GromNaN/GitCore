@@ -1,11 +1,12 @@
 <?php
 
-namespace Git;
+namespace Git\Core;
 
 /**
  * Author / Committer / Tagger
  *
- * @author Jérôme Tamarelle <jerome@tamarelle.net>
+ * @author    Jérôme Tamarelle <jerome@tamarelle.net>
+ * @license   MIT License
  */
 class User
 {
@@ -16,6 +17,7 @@ class User
      * @var string
      */
     protected $name;
+
     /**
      * The user email
      *
@@ -76,4 +78,5 @@ class User
     {
         return sprintf('%s <%s>', $this->name, $this->email);
     }
+
 }

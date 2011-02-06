@@ -1,34 +1,31 @@
 <?php
 
-namespace Git;
+namespace Git\Core;
 
-use Git\Exception\GitInvalidArgumentException;
-use Git\Exception\InvalidGitRepositoryDirectoryException;
+use Git\Core\Exception\GitInvalidArgumentException;
+use Git\Core\Exception\InvalidGitRepositoryDirectoryException;
 
 /**
  * Simple PHP wrapper for Git repository
  *
- * @link      http://github.com/GromNaN/php-git-repo
- * @version   2.0.0
  * @author    Thibault Duplessis <thibault.duplessis at gmail dot com>
- *            Jérôme Tamarelle <http://jerome.tamarelle.net/>
+ *            Jérôme Tamarelle <jerome at tamarelle dot net>
  * @license   MIT License
- *
- * Documentation: http://github.com/GromNaN/php-git-repo/blob/master/README.markdown
- * Tickets:       http://github.com/GromNaN/php-git-repo/issues
  */
 class Repository
 {
 
     /**
-     * @var string  local repository directory
+     * @var string  Local repository directory
      */
     protected $dir;
+
     /**
      * @var boolean Whether to enable debug mode or not
      * When debug mode is on, commands and their output are displayed
      */
     protected $debug;
+
     /**
      * @var array of options
      */
@@ -123,6 +120,33 @@ class Repository
     }
 
     /**
+     * @param string $hash
+     * @return Git\Core\Commit
+     */
+    public function getCommit($hash)
+    {
+        return new Commit($this, $hash);
+    }
+
+    /**
+     * @param string $hash
+     * @return Git\Core\Tree
+     */
+    public function getTree($hash)
+    {
+        return new Tree($this, $hash);
+    }
+
+    /**
+     * @param string $hash
+     * @return Git\Core\Blob
+     */
+    public function getBlob($hash)
+    {
+        return new Blob($this, $hash);
+    }
+
+    /**
      * Return the result of `git log` formatted in a PHP array
      *
      * @param integer $nbCommits Limit of commits to get
@@ -130,16 +154,14 @@ class Repository
      * */
     public function log($nbCommits = 10)
     {
-        $output = $this->git('log -n %d %s', 
-                $nbCommits,
-                Commit::FORMAT);
+        $output = $this->git('log -n %d %s', $nbCommits, Commit::FORMAT);
 
         return Commit::parse($this, $output);
     }
 
     /**
      * Calculate the difference between 2 versions
-     * 
+     *
      * @param  string  $hash1   First commit hash
      * @param  string  $hash2   (optional) Second commit hash
      * @param  int     $context Number of context lines to display
@@ -148,9 +170,9 @@ class Repository
     public function diff($hash1, $hash2 = null, $context = 2)
     {
         if (null === $hash2) {
-            $output = $this->git('diff -U%d %s', (int)$context, escapeshellarg($hash1));
+            $output = $this->git('diff -U%d %s', (int) $context, escapeshellarg($hash1));
         } else {
-            $output = $this->git('diff -U%d %s %s', (int)$context, escapeshellarg($hash1), escapeshellarg($hash2));
+            $output = $this->git('diff -U%d %s %s', (int) $context, escapeshellarg($hash1), escapeshellarg($hash2));
         }
 
         return $output;
@@ -159,7 +181,9 @@ class Repository
     /**
      * Run any git command, like "status" or "checkout -b mybranch origin/mybranch"
      *
-     * @throws  RuntimeException
+     * @example $repository->git('show %s', $hash);
+     *
+     * @throws  Git\Core\Exception\GitRuntimeException
      * @param   string  $commandString
      * @return  string  $output
      */
@@ -181,7 +205,7 @@ class Repository
     /**
      * Get the repository directory
      *
-     * @return  string  the repository directory
+     * @return string The repository directory
      */
     public function getDir()
     {
@@ -196,36 +220,6 @@ class Repository
         if (!file_exists($this->dir.'/.git/HEAD')) {
             throw new InvalidGitRepositoryDirectoryException(sprintf('Invalid Git repository in "%s"', $this->dir));
         }
-    }
-
-    /**
-     *
-     * @param string $hash
-     * @return Git\Commit
-     */
-    public function getCommit($hash)
-    {
-        return new Commit($this, $hash);
-    }
-
-    /**
-     *
-     * @param string $hash
-     * @return Git\Tree
-     */
-    public function getTree($hash)
-    {
-        return new Tree($this, $hash);
-    }
-    
-    /**
-     *
-     * @param string $hash
-     * @return Git\Blob
-     */
-    public function getBlob($hash)
-    {
-        return new Blob($this, $hash);
     }
 
 }
