@@ -1,0 +1,14 @@
+<?php
+
+// PHP Git Repository Bootstrap
+
+require_once __DIR__.'/src/Git/Exception/GitRuntimeException.php';
+require_once __DIR__.'/src/Git/Exception/GitInvalidArgumentException.php';
+require_once __DIR__.'/src/Git/GitObject.php';
+require_once __DIR__.'/src/Git/Blob.php';
+require_once __DIR__.'/src/Git/Tree.php';
+require_once __DIR__.'/src/Git/User.php';
+require_once __DIR__.'/src/Git/Command.php';
+require_once __DIR__.'/src/Git/Commit.php';
+require_once __DIR__.'/src/Git/Repository.php';
+require_once __DIR__.'/src/Git/File.php';
