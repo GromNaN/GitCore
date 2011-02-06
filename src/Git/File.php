@@ -104,7 +104,7 @@ class File extends \SplFileInfo
     public function add()
     {
         $this->repository->git('add %s',
-                escapeshellarg($this->getFilename())
+                escapeshellarg($this->getRelativePathname())
         );
     }
 
@@ -114,7 +114,7 @@ class File extends \SplFileInfo
     public function delete()
     {
         $this->repository->git('rm %s',
-                escapeshellarg($this->getFilename())
+                escapeshellarg($this->getRelativePathname())
         );
     }
 
