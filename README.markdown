@@ -1,3 +1,5 @@
+THIS IS AN OUTDATED README FILE !
+
 # PHP 5.3 Git Repository
 
 Manage a Git repository with PHP.
