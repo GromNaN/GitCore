@@ -2,6 +2,7 @@
 
 namespace Git;
 
+use Git\Exception\GitInvalidArgumentException;
 use Git\Exception\InvalidGitRepositoryDirectoryException;
 
 /**
@@ -94,7 +95,7 @@ class Repository
         $output = $this->git('branch');
 
         foreach (explode("\n", $this->git('branch')) as $branchLine) {
-            if ('*' === $branchLine{0}) {
+            if ($branchLine && '*' === $branchLine{0}) {
                 return substr($branchLine, 2);
             }
         }
@@ -127,11 +128,32 @@ class Repository
      * @param integer $nbCommits Limit of commits to get
      * @return array list of commits and their properties
      * */
-    public function getCommits($nbCommits = 10)
+    public function log($nbCommits = 10)
     {
-        $output = $this->git('log -n %d --date=%s --format=format:%s', $nbCommits, Commit::DATE_FORMAT, Commit::FORMAT);
+        $output = $this->git('log -n %d %s', 
+                $nbCommits,
+                Commit::FORMAT);
 
-        return Commit::parse($output);
+        return Commit::parse($this, $output);
+    }
+
+    /**
+     * Calculate the difference between 2 versions
+     * 
+     * @param  string  $hash1   First commit hash
+     * @param  string  $hash2   (optional) Second commit hash
+     * @param  int     $context Number of context lines to display
+     * @return string  Raw diff string
+     */
+    public function diff($hash1, $hash2 = null, $context = 2)
+    {
+        if (null === $hash2) {
+            $output = $this->git('diff -U%d %s', (int)$context, escapeshellarg($hash1));
+        } else {
+            $output = $this->git('diff -U%d %s %s', (int)$context, escapeshellarg($hash1), escapeshellarg($hash2));
+        }
+
+        return $output;
     }
 
     /**
@@ -172,8 +194,38 @@ class Repository
     protected function validate()
     {
         if (!file_exists($this->dir.'/.git/HEAD')) {
-            throw new InvalidGitRepositoryDirectoryException($this->dir.' is not a valid Git repository');
+            throw new InvalidGitRepositoryDirectoryException(sprintf('Invalid Git repository in "%s"', $this->dir));
         }
+    }
+
+    /**
+     *
+     * @param string $hash
+     * @return Git\Commit
+     */
+    public function getCommit($hash)
+    {
+        return new Commit($this, $hash);
+    }
+
+    /**
+     *
+     * @param string $hash
+     * @return Git\Tree
+     */
+    public function getTree($hash)
+    {
+        return new Tree($this, $hash);
+    }
+    
+    /**
+     *
+     * @param string $hash
+     * @return Git\Blob
+     */
+    public function getBlob($hash)
+    {
+        return new Blob($this, $hash);
     }
 
 }

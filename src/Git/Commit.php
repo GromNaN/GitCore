@@ -4,95 +4,150 @@ namespace Git;
 
 /**
  * Git commit.
- * Do not instanciate directly, use Git\Commit::parse($output) instead.
- *
+ * 
  * @link      http://github.com/GromNaN/php-git-repo
  * @version   2.0.0
  * @author    Jérôme Tamarelle <http://jerome.tamarelle.net/>
  * @license   MIT License
  */
-class Commit
+use Git\Repository;
+
+class Commit extends GitObject
 {
     /**
-     * Log output format that can be parsed by Commit::parse method.
+     * git-log output format that can be parsed by Commit::parse method.
      */
-    const FORMAT = '"%h|%t|%an|%ae|%ad|%cn|%ce|%cd|%s"';
-
-    /**
-     * Git date format to be parsed by \DateTime class.
-     */
-    const DATE_FORMAT = 'iso';
+    const FORMAT = '--date=iso --pretty=format:"%H|%T|%P|%an|%ae|%ad|%cn|%ce|%cd|%s"';
 
     /**
      * Parse the response of a git-log command.
-     * 
+     *
+     * @param Repository $repository The project repository
      * @param string $output
-     * @return array<Commit> 
+     * @return array<Commit>
      */
-    public static function parse($output)
+    public static function parse(Repository $repository, $output)
     {
         $commits = array();
 
         if (!empty($output)) {
             foreach (explode("\n", $output) as $line) {
-                $infos = explode('|', $line);
-                $commit = new Commit();
-                $commit->id = $infos[0];
-                $commit->tree = $infos[1];
-                $commit->author_name = $infos[2];
-                $commit->author_email = $infos[3];
-                $commit->authored_date = new \DateTime($infos[4]);
-                $commit->commiter_name = $infos[5];
-                $commit->commiter_email = $infos[6];
-                $commit->committed_date = new \DateTime($infos[7]);
-                $commit->message = $infos[8];
-                $commits[] = $commit;
+                $commit = new Commit($repository);
+                $commit->init($line);
+                $commits[$commit->getHash()] = $commit;
             }
         }
 
         return $commits;
     }
 
-    protected $id;
+    protected $treeHash;
     protected $tree;
-    protected $author_name;
-    protected $author_email;
-    protected $authored_date;
-    protected $commiter_name;
-    protected $commiter_email;
-    protected $committed_date;
+    protected $parentHashes;
+    protected $parents;
+    protected $author;
+    protected $authoredDate;
+    protected $committer;
+    protected $committedDate;
     protected $message;
 
-    /**
-     * @return string
-     */
-    public function getId()
+    public function __construct(Repository $repository, $hash = null)
     {
-        return $this->id;
+        parent::__construct($repository, $hash);
+
+        // Retreive details only if a hash is given
+        if (null !== $hash) {
+            $line = $this->repository->git('show -s %s %s',
+                            Commit::FORMAT,
+                            escapeshellarg($hash));
+            $this->init($line);
+        }
     }
 
     /**
-     * @return string
+     * Init commit values from git command output line.
+     * The format must follow Commit::FORMAT
+     *
+     * @param string $line
+     */
+    protected function init($line)
+    {
+        $infos = explode('|', $line);
+
+        $this->hash = $infos[0];
+        $this->treeHash = $infos[1];
+        $this->parentHashes = empty($infos[2]) ? array() : explode(' ', $infos[2]);
+        $this->author = new User($infos[3], $infos[4]);
+        $this->authoredDate = new \DateTime($infos[5]);
+        $this->committer = new User($infos[6], $infos[7]);
+        $this->committedDate = new \DateTime($infos[8]);
+        $this->message = $infos[9];
+    }
+
+    /**
+     * The SHA1 hash of a tree object.
+     *
+     * @return sha1
+     */
+    public function getTreeHash()
+    {
+        return $this->treeHash;
+    }
+
+    /**
+     * The tree object, representing the contents of a directory
+     * at a certain point in time.
+     *
+     * @return Git\Tree
      */
     public function getTree()
     {
+        if (null === $this->tree) {
+            $this->tree = new Tree($this->repository, $this->treeHash);
+        }
+
         return $this->tree;
     }
 
     /**
-     * @return string
+     * The SHA1 name of some number of commits which represent the immediately
+     * previous step(s) in the history of the project. Merge commits may have
+     * more than one. A commit with no parents is called a "root" commit, and
+     * represents the initial revision of a project.
+     *
+     * @return array<sha1>
      */
-    public function getAuthorName()
+    public function getParentHashes()
     {
-        return $this->author_name;
+        return $this->parentHashes;
     }
 
     /**
-     * @return string
+     * Commits which represent the immediately previous step(s) in the history
+     * of the project. Merge commits may have more than one. A commit with no
+     * parents is called a "root" commit, and represents the initial revision
+     * of a project.
+     *
+     * @return array<Commit>
      */
-    public function getAuthorEmail()
+    public function getParents()
     {
-        return $this->author_email;
+        if (null === $this->parents) {
+            $this->parents = array();
+            foreach ($this->parentHashes as $parentHash) {
+                $this->parents[$parentHash] = new Commit($this->repository, $parentHash);
+            }
+        }
+
+        return $this->parents;
+    }
+
+    /**
+     * @return Git\User
+     */
+    public function getAuthor()
+    {
+        return $this->author;
     }
 
     /**
@@ -100,23 +155,15 @@ class Commit
      */
     public function getAuthoredDate()
     {
-        return $this->authored_date;
+        return $this->authoredDate;
     }
 
     /**
-     * @return string
+     * @return Git\User
      */
-    public function getCommiterName()
+    public function getCommitter()
     {
-        return $this->commiter_name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCommiterEmail()
-    {
-        return $this->commiter_email;
+        return $this->committer;
     }
 
     /**
@@ -124,7 +171,7 @@ class Commit
      */
     public function getCommittedDate()
     {
-        return $this->committed_date;
+        return $this->committedDate;
     }
 
     /**
@@ -135,4 +182,14 @@ class Commit
         return $this->message;
     }
 
+    /**
+     * Reads the diff made by the commit.
+     *
+     * @return string
+     */
+    public function getRawDiff()
+    {
+        return $this->repository->git('git diff-tree -p %s',
+                escapeshellarg($this->hash));
+    }
 }

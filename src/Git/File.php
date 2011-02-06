@@ -10,126 +10,189 @@ namespace Git;
  * @author    Jérôme Tamarelle <http://jerome.tamarelle.net/>
  * @license   MIT License
  */
-use Git\Exception\InvalidCommitMessage;
+use Git\Exception\InsufficientPermissionException;
 
-class File
+class File extends \SplFileInfo
 {
 
-    /**
-     * @var string Real filesystem path of the file
-     */
-    protected $filename;
     /**
      * @var Repository The Git repository
      */
     protected $repository;
     /**
-     * @var string File content
+     * @var string Actual contents of the file
      */
-    protected $content;
-    /**
-     * @var boolean Does the file content has been modified
-     */
-    protected $modified = false;
+    protected $contents;
 
     /**
-     * Instanciate a new file 
-     * 
-     * @param  Repository  The Git repository hosting the file.
-     * @param  
+     * Instanciate a new file
+     *
+     * @param Repository $repository The Git repository hosting the file.
+     * @param string $file_name Opened file full path name
      */
-    public function __construct(Repository $repository, $filename)
+    public function __construct(Repository $repository, $file_name)
     {
+        parent::__construct($repository->getDir().'/'.$file_name);
         $this->repository = $repository;
-        $this->filename = $filename;
+        $this->setInfoClass(__CLASS__);
     }
 
-    public function getFilename()
+    public function getRelativePathname()
     {
-        return $this->filename;
+        return substr($this->getPathname(), strlen($this->repository->getDir()) + 1);
     }
 
-    public function getFullFilename()
+    public function exists()
     {
-        return $this->repository->getDir().'/'.$this->getFilename();
+        return \file_exists($this->getPathname());
     }
 
-    public function isModified()
+    public function setContents($contents)
     {
-        return $this->modified || $this->isNew();
+        $this->contents = $contents;
     }
 
-    public function isNew()
+    public function getContents($noCache = false)
     {
-        return!file_exists($this->getFullFilename());
-    }
-
-    public function isDir()
-    {
-        return is_dir($this->filename);
-    }
-
-    public function setContent($content)
-    {
-        if ($content != $this->getContent()) {
-            $this->content = $content;
-            $this->modified = true;
-        }
-    }
-
-    public function getContent()
-    {
-        if (!$this->content) {
-            if ($this->isNew()) {
-                $this->content = '';
+        if (null === $this->contents || $noCache) {
+            if (!$this->exists()) {
+                return '';
+            } elseif ($this->isReadable()) {
+                return \file_get_contents($this->getPathname());
             } else {
-                $this->content = file_get_contents($this->getFullFilename());
+                throw new InsufficientPermissionException(sprintf('File "%s" is not readable.', $this->getPathname()));
             }
         }
-        return $this->content;
+
+        return $this->contents;
     }
 
-    public function save($message)
+    public function save()
     {
-        if ($this->isModified()) {
-            file_put_contents($this->getFullFilename(), $this->getContent());
-            $this->modified = false;
-            $this->repository->git('add %s', escapeshellarg($this->getFilename()));
-            $this->commit($message);
+        if(!$this->exists()) {
+            mkdir($this->getPath(), 0777, true);
+            if(!\is_writable($this->getPath())) {
+                throw new InsufficientPermissionException(sprintf('Directory "%s" is not writable.', $this->getPath()));
+            }
+        } else {
+            if(!$this->isWritable()) {
+                throw new InsufficientPermissionException(sprintf('File "%s" is not writable.', $this->getPathname()));
+            }
         }
+        
+        \file_put_contents($this->getPathname(), $this->contents);
+        $this->add();
     }
 
-    public function delete($message)
+    /**
+     * Get the content of the file for a given version
+     *
+     * @param string $hash Hash of the version
+     * return string Historical content of the file
+     */
+    public function getHistoricalContent($hash)
     {
-        if (!$this->isNew()) {
-            $this->repository->git('rm "%s"', $this->getFilename());
-            $this->commit($message);
-        }
+        $content = $this->repository->git('cat-file -p %s:%s',
+                        escapeshellarg($hash),
+                        escapeshellarg($this->getFilename()
+                ));
     }
 
-    public function move($target, $message)
+    /**
+     * Set the file to be committed at the next commit.
+     */
+    public function add()
     {
-        if (!$this->isNew()) {
-            $this->repository->git('mv %s %s', escapeshellarg($this->getFilename()), escapeshellarg($target));
-            $this->repository->git('add %s', escapeshellarg($target));
-        } 
-        $this->filename = $target;
-        $this->commit($message);
+        $this->repository->git('add %s',
+                escapeshellarg($this->getFilename())
+        );
     }
 
-    public function commit($message)
+    /**
+     * Set the file to be removed at the next commit.
+     */
+    public function delete()
+    {
+        $this->repository->git('rm %s',
+                escapeshellarg($this->getFilename())
+        );
+    }
+
+    /**
+     * Commit changes to the git repository.
+     *
+     * @example $file->commit('Bug fix', 'Jérôme <jerome@foo.com>');
+     *
+     * @param string $message Commit message, cannot be empty.
+     * @param User|string $author (Optional) Author of the changes
+     */
+    public function commit($message, $author = null)
     {
         if (empty($message)) {
-            throw new InvalidCommitMessage(sprintf('Git commit message "%s" is not valid.', $message));
+            throw new \InvalidArgumentException(sprintf('Git commit message "%s" is not valid.', $message));
         }
-        $this->repository->git('commit %s -m %s', escapeshellarg($this->getFilename()), escapeshellarg($message));
+
+        if (null === $author) {
+            $this->repository->git('commit --allow-empty --no-verify --message=%s -- %s',
+                    escapeshellarg($message),
+                    escapeshellarg($this->getRelativePathname())
+            );
+        } else {
+            $this->repository->git('commit --allow-empty --no-verify --message=%s --author=%s -- %s',
+                    escapeshellarg($message),
+                    escapeshellarg(strval($author)),
+                    escapeshellarg($this->getRelativePathname())
+            );
+        }
     }
 
-    public function getCommits($nbCommits = 10)
+    /**
+     * Get last commits on the file.
+     *
+     * @param int $nbCommits Number of log entries to get
+     * @return array Commit objects representing last modifications.
+     */
+    public function log($nbCommits = 10)
     {
-        $output = $this->repository->git('log -n %d --date=%s --format=format:%s -- %s', $nbCommits, Commit::DATE_FORMAT, Commit::FORMAT, escapeshellarg($this->filename));
+        $output = $this->repository->git('log -n %d %s -- %s',
+                        (int) $nbCommits,
+                        Commit::FORMAT,
+                        escapeshellarg($this->getRelativePathname()));
 
-        return Commit::parse($output);
+        return Commit::parse($this->repository, $output);
+    }
+
+    /**
+     * Calculate the difference between 2 versions
+     *
+     * @param int $context Number of context lines around changes
+     * @param string $hash1 Hash of the first version
+     * @param string $hash2 Hash of the second version
+     * @return string String response of the git diff command
+     */
+    public function diff($context = 2, $hash1 = null, $hash2 = null)
+    {
+        if (null === $hash1) {
+            $output = $this->repository->git('diff -U%d %s',
+                            (int) $context,
+                            escapeshellarg($this->getFilename())
+            );
+        } elseif (null === $hash2) {
+            $output = $this->repository->git('diff -U%d %s -- %s',
+                            (int) $context,
+                            escapeshellarg($hash1),
+                            escapeshellarg($this->getFilename())
+            );
+        } else {
+            $output = $this->repository->git('diff -U%d %s %s -- %s',
+                            (int) $context,
+                            escapeshellarg($hash1),
+                            escapeshellarg($hash2),
+                            escapeshellarg($this->getFilename())
+            );
+        }
+
+        return $output;
     }
 
 }
