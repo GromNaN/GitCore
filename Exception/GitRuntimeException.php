@@ -1,6 +1,6 @@
 <?php
 
-namespace Git\Exception;
+namespace Git\Core\Exception;
 
 /**
  * Exception handled when a git command fail.

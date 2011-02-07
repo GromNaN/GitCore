@@ -1,34 +1,33 @@
 <?php
 
-namespace Git\Tests;
+namespace Git\Core\Tests;
 
-require_once __DIR__.'/../bootstrap.php';
+require_once __DIR__.'/TestCase.php';
 
-use Git\Repository;
-use Git\Commit;
-use Git\Tree;
-use Git\Blob;
+use Git\Core\Repository;
+use Git\Core\Commit;
+use Git\Core\Tree;
+use Git\Core\Blob;
 
-class TreeTest extends \PHPUnit_Framework_TestCase
+class TreeTest extends TestCase
 {
+
     public function testConstructor()
     {
-        $repo = new Repository(FIXTURES.'repo', DEBUG);
-        $tree = $repo->getCurrentTree();
+        $tree = self::$repository->getCurrentTree();
 
         $this->assertEquals('HEAD', $tree->getHash());
     }
 
     public function testChildren()
     {
-        $repo = new Repository(FIXTURES.'repo', DEBUG);
-        $tree = $repo->getCurrentTree();
+        $tree = self::$repository->getCurrentTree();
 
         $children = $tree->getChildren();
-        
+
         $this->assertEquals(3, count($children));
 
-        foreach($children as $hash=>$child) {
+        foreach ($children as $hash => $child) {
             $this->assertEquals($hash, $child->getHash());
         }
         $this->assertEquals('FILE2', $children['d77231cee7bf500a9aa7ada4ca76dfd7dfef1d49']->getName(), 'Got the right file name');
@@ -38,8 +37,7 @@ class TreeTest extends \PHPUnit_Framework_TestCase
 
     public function testSubTree()
     {
-        $repo = new Repository(FIXTURES.'repo', DEBUG);
-        $tree = new Tree($repo, '6c0fe566aeeba93df77b2e3d50c84fc51d6a14cf');
+        $tree = new Tree(self::$repository, '6c0fe566aeeba93df77b2e3d50c84fc51d6a14cf');
 
         $this->assertEquals('6c0fe566aeeba93df77b2e3d50c84fc51d6a14cf', $tree->getHash());
 
@@ -47,4 +45,5 @@ class TreeTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(1, count($children));
     }
+
 }

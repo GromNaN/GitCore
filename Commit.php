@@ -4,14 +4,14 @@ namespace Git\Core;
 
 /**
  * Git commit.
- * 
+ *
  * @link      http://github.com/GromNaN/php-git-repo
  * @version   2.0.0
  * @author    Jérôme Tamarelle <http://jerome.tamarelle.net/>
  * @license   MIT License
  */
 
-class Commit extends GitObject
+class Commit extends Object
 {
     /**
      * git-log output format that can be parsed by Commit::parse method.

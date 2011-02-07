@@ -17,7 +17,7 @@ namespace Git\Core;
  * @todo Implement streamContents methods to send large files directly to output
  */
 
-class Blob extends GitObject
+class Blob extends Object
 {
     protected $contents = null;
 

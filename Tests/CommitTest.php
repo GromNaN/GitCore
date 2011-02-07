@@ -1,20 +1,19 @@
 <?php
 
-namespace Git\Tests;
+namespace Git\Core\Tests;
 
-require_once __DIR__.'/../bootstrap.php';
+require_once __DIR__.'/TestCase.php';
 
-use Git\Repository;
-use Git\File;
-use Git\Commit;
+use Git\Core\Repository;
+use Git\Core\File;
+use Git\Core\Commit;
 
-class CommitTest extends \PHPUnit_Framework_TestCase
+class CommitTest extends TestCase
 {
+
     public function testConstructor()
     {
-        $repo = new Repository(FIXTURES.'repo', DEBUG);
-
-        $commit = new Commit($repo, 'f7e63c516e73451f915e904d27171c17ebc303ba');
+        $commit = new Commit($this->repository, 'f7e63c516e73451f915e904d27171c17ebc303ba');
 
         $this->assertEquals('f7e63c516e73451f915e904d27171c17ebc303ba', $commit->getHash());
         $this->assertEquals(array('94684d5254c09b915149b43d16e41843d4fb0905'), $commit->getParentHashes());
@@ -29,24 +28,19 @@ class CommitTest extends \PHPUnit_Framework_TestCase
 
     public function testMultipleParents()
     {
-        $repo = new Repository(FIXTURES.'repo', DEBUG);
-
-        $commit = new Commit($repo, '10bdf83cda44ca5503cfb8d710506d2e5e40832d');
+        $commit = new Commit($this->repository, '10bdf83cda44ca5503cfb8d710506d2e5e40832d');
 
         $this->assertEquals(2, count($commit->getParentHashes()), 'Commit has 2 parent hashes');
         $this->assertEquals(2, count($parents = $commit->getParents()), 'Commit has 2 parents');
 
-        foreach($parents as $hash=>$parent)
-        {
+        foreach ($parents as $hash => $parent) {
             $this->assertEquals($hash, $parent->getHash());
         }
     }
 
     public function testNullParents()
     {
-        $repo = new Repository(FIXTURES.'repo', DEBUG);
-
-        $commit = new Commit($repo, '94684d5254c09b915149b43d16e41843d4fb0905');
+        $commit = new Commit($this->repository, '94684d5254c09b915149b43d16e41843d4fb0905');
 
         $this->assertEquals(0, count($commit->getParentHashes()), 'Commit has no parent hash');
         $this->assertEquals(0, count($parents = $commit->getParents()), 'Commit has no parent');
@@ -54,23 +48,19 @@ class CommitTest extends \PHPUnit_Framework_TestCase
 
     public function testRepositoryLog()
     {
-        $repo = new Repository(FIXTURES.'repo', DEBUG);
+        $this->assertEquals(2, count($this->repository->log(2)));
 
-        $this->assertEquals(2, count($repo->log(2)));
-
-        $log = $repo->log();
+        $log = $this->repository->log();
         $this->assertEquals(6, count($log));
 
-        foreach($log as $key=>$commit)
-        {
+        foreach ($log as $key => $commit) {
             $this->assertEquals($key, $commit->getHash());
         }
     }
 
     public function testFileLog()
     {
-        $repo = new Repository(FIXTURES.'repo', DEBUG);
-        $file = new File($repo, 'FILE1');
+        $file = new File($this->repository, 'FILE1');
 
         $log = $file->log();
 
@@ -78,4 +68,5 @@ class CommitTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('559df3c3e37f1e97f83e1d1539d692ace411d6f8', $log);
         $this->assertArrayHasKey('94684d5254c09b915149b43d16e41843d4fb0905', $log);
     }
+
 }
