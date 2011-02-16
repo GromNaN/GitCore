@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the GitCore for PHP5.3
+ *
+ * (c) Jérôme Tamarelle <jerome@tamarelle.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Git\Core;
 
 /**
@@ -12,13 +21,14 @@ namespace Git\Core;
  * independent of its location in the directory tree, and renaming a file does
  * not change the object that file is associated with.
  *
- * @author    Jérôme Tamarelle <http://jerome.tamarelle.net/>
- * @license   MIT License
+ * @author    Jérôme Tamarelle <jerome@tamarelle.net>
+ *
  * @todo Implement streamContents methods to send large files directly to output
  */
-
 class Blob extends Object
 {
+    protected $type = 'blob';
+
     protected $contents = null;
 
     /**
@@ -38,9 +48,8 @@ class Blob extends Object
      */
     public function getContents()
     {
-        if(null === $this->contents) {
-            $this->contents = $this->repository->git('cat-file blob %s',
-                    escapeshellarg($this->hash));
+        if (null === $this->contents) {
+            $this->contents = $this->repository->git('cat-file blob %s', escapeshellarg($this->hash));
         }
 
         return $this->contents;
@@ -50,4 +59,5 @@ class Blob extends Object
     {
         return $this->name;
     }
+
 }

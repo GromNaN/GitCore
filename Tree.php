@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the GitCore for PHP5.3
+ *
+ * (c) Jérôme Tamarelle <jerome@tamarelle.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Git\Core;
 
 /**
@@ -7,7 +16,6 @@ namespace Git\Core;
  * It generally represents the contents of a directory or subdirectory.
  *
  * @author    Jérôme Tamarelle <jerome@tamarelle.net>
- * @license   MIT License
  */
 class Tree extends Object
 {
@@ -40,11 +48,11 @@ class Tree extends Object
     }
 
     /**
-     * Tree children can be Tree or Glob objects.
+     * List the contents of a tree object
      *
-     * @return array
+     * @return array List of Tree and Blob objects
      */
-    public function getChildren()
+    public function getObjects()
     {
         $output = $this->repository->git('ls-tree --full-name %s', escapeshellarg($this->hash));
 
@@ -58,12 +66,13 @@ class Tree extends Object
          * 040000 tree c409c5195393b6e8adb4a95b0bff5605d3d08372	src
          * 040000 tree 9296fb384d09a521c9540645669fe352b4af2772	test
          */
-        $children = array();
+        $objects = array();
         foreach (\explode("\n", $output) as $line) {
-            if (empty($line))
-                continue;
+            if (empty($line)) continue;
+
             $hash = \substr($line, 12, 40);
             $name = \substr($line, 53);
+
             switch (\substr($line, 7, 4)) {
                 case 'tree':
                     $object = new Tree($this->repository, $hash, $name);
@@ -75,10 +84,10 @@ class Tree extends Object
                     throw new \Exception(\sprintf('Unable to determine git object type "%s"', $line));
             }
 
-            $children[$hash] = $object;
+            $objects[$hash] = $object;
         }
 
-        return $children;
+        return $objects;
     }
 
 }

@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the GitCore for PHP5.3
+ *
+ * (c) Jérôme Tamarelle <jerome@tamarelle.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Git\Core;
 
 /**
@@ -8,12 +17,11 @@ namespace Git\Core;
  * Size is not implemented here, since I think is is useless.
  *
  * @link      http://book.git-scm.com/1_the_git_object_model.html
- * @author    Jérôme Tamarelle <jerome at tamarelle dot net>
- * @license   MIT License
+ * @author    Jérôme Tamarelle <jerome@tamarelle.net>
  */
 use Git\Exception\GitInvalidArgumentException;
 
-abstract class Object
+class Object
 {
 
     /**
@@ -39,8 +47,26 @@ abstract class Object
      */
     public function __construct(Repository $repository, $hash)
     {
-        $this->setRepository($repository);
-        $this->setHash($hash);
+        $this->repository = $repository;
+
+        if (null !== $hash
+          && 'HEAD' != $hash
+          && !\preg_match('/[0-9a-f]{40}/', $hash)) {
+            throw new GitInvalidArgumentException(sprintf('Invalid SHA1 hash "%s".', $hash));
+        }
+
+        $this->hash = $hash;
+    }
+
+    /**
+     * Compare 2 object and determines if they are equals.
+     *
+     * @param Object $object
+     * @return bool Whenever the given object is the same as the current object.
+     */
+    public function is($object)
+    {
+        return ($object instanceof Object) && ($this->getHash() === $object->getHash());
     }
 
     /**
@@ -66,18 +92,6 @@ abstract class Object
     }
 
     /**
-     * @param Git\Repository $repository
-     * @throw Git\Exception\GitInvalidArgumentException
-     */
-    public function setRepository(Repository $repository)
-    {
-        if (!$repository) {
-            throw new GitInvalidArgumentException('Git repository attribute is required.');
-        }
-        $this->repository = $repository;
-    }
-
-    /**
      * The SHA1 hash of this Git object
      *
      * @return string
@@ -86,21 +100,4 @@ abstract class Object
     {
         return $this->hash;
     }
-
-    /**
-     * @param string $hash
-     * @return bool true
-     * @throw Git\Exception\GitInvalidArgumentException
-     */
-    protected function setHash($hash)
-    {
-        if (null !== $hash
-          && 'HEAD' != $hash
-          && !\preg_match('/[0-9a-f]{40}/', $hash)) {
-            throw new GitInvalidArgumentException(sprintf('Invalid SHA1 hash "%s".', $hash));
-        }
-
-        $this->hash = $hash;
-    }
-
 }

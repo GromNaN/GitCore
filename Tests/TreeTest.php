@@ -11,28 +11,31 @@ use Git\Core\Blob;
 
 class TreeTest extends TestCase
 {
+    protected $type = 'tree';
 
     public function testConstructor()
     {
-        $tree = self::$repository->getCurrentTree();
+        $tree = new Tree(self::$repository, '6eaa2ddcc46ec7bc4f5c9445d95835966d9feab9');
 
-        $this->assertEquals('HEAD', $tree->getHash());
+        $this->assertEquals('6eaa2ddcc46ec7bc4f5c9445d95835966d9feab9', $tree->getHash());
+        $this->assertEquals(self::$repository, $tree->getRepository(), 'Repository');
     }
 
-    public function testChildren()
+    public function testGetObjects()
     {
-        $tree = self::$repository->getCurrentTree();
+        $tree = new Tree(self::$repository, '6eaa2ddcc46ec7bc4f5c9445d95835966d9feab9');
 
-        $children = $tree->getChildren();
+        $objects = $tree->getObjects();
 
-        $this->assertEquals(3, count($children));
+        $this->assertEquals(3, count($objects));
 
-        foreach ($children as $hash => $child) {
-            $this->assertEquals($hash, $child->getHash());
+        foreach ($objects as $hash => $object) {
+            $this->assertEquals($hash, $object->getHash(), 'Associative array');
         }
-        $this->assertEquals('FILE2', $children['d77231cee7bf500a9aa7ada4ca76dfd7dfef1d49']->getName(), 'Got the right file name');
-        $this->assertInstanceOf('Git\Blob', $children['fc745af30d0909d443303f9997be3f674bf6c566'], 'It is a Blob');
-        $this->assertInstanceOf('Git\Tree', $children['6c0fe566aeeba93df77b2e3d50c84fc51d6a14cf'], 'It is a Tree');
+
+        $this->assertEquals('FILE2', $objects['d77231cee7bf500a9aa7ada4ca76dfd7dfef1d49']->getName(), 'Got the right file name');
+        $this->assertTrue($objects['fc745af30d0909d443303f9997be3f674bf6c566'] instanceof Blob, 'It is a Blob');
+        $this->assertTrue($objects['6c0fe566aeeba93df77b2e3d50c84fc51d6a14cf'] instanceof Tree, 'It is a Tree');
     }
 
     public function testSubTree()
@@ -41,9 +44,9 @@ class TreeTest extends TestCase
 
         $this->assertEquals('6c0fe566aeeba93df77b2e3d50c84fc51d6a14cf', $tree->getHash());
 
-        $children = $tree->getChildren();
+        $objects = $tree->getObjects();
 
-        $this->assertEquals(1, count($children));
+        $this->assertEquals(1, count($objects));
     }
 
 }

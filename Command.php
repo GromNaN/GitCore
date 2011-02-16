@@ -1,13 +1,21 @@
 <?php
 
+/*
+ * This file is part of the GitCore for PHP5.3
+ *
+ * (c) Jérôme Tamarelle <jerome@tamarelle.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Git\Core;
 
 /**
  * File versioned in a Git repository.
  *
  * @author    Thibault Duplessis <thibault.duplessis at gmail dot com>
- *            Jérôme Tamarelle <jerome at tamarelle dot net>
- * @license   MIT License
+ *            Jérôme Tamarelle <jerome@tamarelle.net>
  */
 use Git\Core\Exception\GitRuntimeException;
 
@@ -18,12 +26,10 @@ class Command
      * @var string Real filesystem path of the repository
      */
     protected $dir;
-
     /**
      * @var string Git command to run
      */
     protected $commandString;
-
     /**
      * @var boolean Whether to enable debug mode or not
      * When debug mode is on, commands and their output are displayed

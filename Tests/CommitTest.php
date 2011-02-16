@@ -7,50 +7,66 @@ require_once __DIR__.'/TestCase.php';
 use Git\Core\Repository;
 use Git\Core\File;
 use Git\Core\Commit;
+use Git\Core\Tree;
+use Git\Core\Blob;
+use Git\Core\User;
 
 class CommitTest extends TestCase
 {
 
     public function testConstructor()
     {
-        $commit = new Commit($this->repository, 'f7e63c516e73451f915e904d27171c17ebc303ba');
+        $commit = new Commit(self::$repository, 'fccd14eaa8d5f7654ce838becb6b47e34f4bcc43');
 
-        $this->assertEquals('f7e63c516e73451f915e904d27171c17ebc303ba', $commit->getHash());
-        $this->assertEquals(array('94684d5254c09b915149b43d16e41843d4fb0905'), $commit->getParentHashes());
-        $this->assertInstanceOf('Git\Commit', current($commit->getParents()));
+        $this->assertEquals('fccd14eaa8d5f7654ce838becb6b47e34f4bcc43', $commit->getHash());
+        $this->assertEquals(array('5ff8ff94448ef3882daf4b9121b847d8540a065b'), $commit->getParentHashes());
+        $this->assertTrue(current($commit->getParents()) instanceof Commit, 'Parents are Git\Commit');
         $this->assertEquals('884227673795f80c7ce03a79fabba733036401eb', $commit->getTreeHash());
-        $this->assertInstanceOf('Git\Tree', $commit->getTree(), 'Tree is a Git\Tree');
-        $this->assertInstanceOf('Git\User', $commit->getAuthor(), 'Author a Git\User');
-        $this->assertInstanceOf('DateTime', $commit->getAuthoredDate(), 'AuthoredDate is a DateTime');
-        $this->assertInstanceOf('Git\User', $commit->getCommitter(), 'Comitter a Git\User');
-        $this->assertInstanceOf('DateTime', $commit->getCommittedDate(), 'ComittedDate is a DateTime');
+        $this->assertTrue($commit->getTree() instanceof Tree, 'Tree is a Git\Tree');
+
+        $author = new User('Cécile HONXA', 'cecile.honxa@author.local');
+        $this->assertEquals($author, $commit->getAuthor(), 'Author infos are loaded');
+        $this->assertTrue($commit->getAuthoredDate() instanceof \DateTime, 'AuthoredDate is a DateTime');
+
+        $committer = new User('Lenny BARALAIR', 'lenny.baralair@commit.local');
+        $this->assertEquals($committer, $commit->getCommitter(), 'Comitter infos are loaded');
+        $this->assertTrue($commit->getCommittedDate() instanceof \DateTime, 'ComittedDate is a DateTime');
     }
 
     public function testMultipleParents()
     {
-        $commit = new Commit($this->repository, '10bdf83cda44ca5503cfb8d710506d2e5e40832d');
+        $commit = new Commit(self::$repository, '0bdadcb19267edd56ee709cb1ec3339d711db584');
 
         $this->assertEquals(2, count($commit->getParentHashes()), 'Commit has 2 parent hashes');
         $this->assertEquals(2, count($parents = $commit->getParents()), 'Commit has 2 parents');
 
-        foreach ($parents as $hash => $parent) {
-            $this->assertEquals($hash, $parent->getHash());
-        }
+        $this->assertArrayHasKey('aafe1fa6e816e7ebcbf460ed03861815bd048e4c', $parents);
+        $this->assertArrayHasKey('fccd14eaa8d5f7654ce838becb6b47e34f4bcc43', $parents);
     }
 
     public function testNullParents()
     {
-        $commit = new Commit($this->repository, '94684d5254c09b915149b43d16e41843d4fb0905');
+        $commit = new Commit(self::$repository, '5ff8ff94448ef3882daf4b9121b847d8540a065b');
 
         $this->assertEquals(0, count($commit->getParentHashes()), 'Commit has no parent hash');
         $this->assertEquals(0, count($parents = $commit->getParents()), 'Commit has no parent');
     }
 
+    public function testRawDiff()
+    {
+        $commit = new Commit(self::$repository, 'fccd14eaa8d5f7654ce838becb6b47e34f4bcc43');
+
+        $this->assertEquals('4d0cbc9298c4d8c9877a84e42a5b8aac', md5($commit->getRawDiff()));
+
+        $commit = new Commit(self::$repository, '5ff8ff94448ef3882daf4b9121b847d8540a065b');
+        $this->assertEmpty($commit->getRawDiff());
+    }
+
     public function testRepositoryLog()
     {
-        $this->assertEquals(2, count($this->repository->log(2)));
+        $this->assertEquals(2, count(self::$repository->log(2)));
 
-        $log = $this->repository->log();
+        $log = self::$repository->log();
         $this->assertEquals(6, count($log));
 
         foreach ($log as $key => $commit) {
@@ -60,13 +76,13 @@ class CommitTest extends TestCase
 
     public function testFileLog()
     {
-        $file = new File($this->repository, 'FILE1');
+        $file = new File(self::$repository, 'FILE1');
 
         $log = $file->log();
 
         $this->assertEquals(2, count($log), 'log has 2 entries');
-        $this->assertArrayHasKey('559df3c3e37f1e97f83e1d1539d692ace411d6f8', $log);
-        $this->assertArrayHasKey('94684d5254c09b915149b43d16e41843d4fb0905', $log);
+        $this->assertArrayHasKey('aafe1fa6e816e7ebcbf460ed03861815bd048e4c', $log);
+        $this->assertArrayHasKey('5ff8ff94448ef3882daf4b9121b847d8540a065b', $log);
     }
 
 }

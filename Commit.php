@@ -1,14 +1,20 @@
 <?php
 
+/*
+ * This file is part of the GitCore for PHP5.3
+ *
+ * (c) Jérôme Tamarelle <jerome@tamarelle.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Git\Core;
 
 /**
  * Git commit.
  *
- * @link      http://github.com/GromNaN/php-git-repo
- * @version   2.0.0
- * @author    Jérôme Tamarelle <http://jerome.tamarelle.net/>
- * @license   MIT License
+ * @author    Jérôme Tamarelle <jerome@tamarelle.net>
  */
 
 class Commit extends Object
