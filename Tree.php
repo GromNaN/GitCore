@@ -11,6 +11,7 @@ namespace Git\Core;
  */
 class Tree extends Object
 {
+
     /**
      * @var string
      */
@@ -58,12 +59,12 @@ class Tree extends Object
          * 040000 tree 9296fb384d09a521c9540645669fe352b4af2772	test
          */
         $children = array();
-        foreach (explode("\n", $output) as $line) {
+        foreach (\explode("\n", $output) as $line) {
             if (empty($line))
                 continue;
-            $hash = substr($line, 12, 40);
-            $name = substr($line, 53);
-            switch (substr($line, 7, 4)) {
+            $hash = \substr($line, 12, 40);
+            $name = \substr($line, 53);
+            switch (\substr($line, 7, 4)) {
                 case 'tree':
                     $object = new Tree($this->repository, $hash, $name);
                     break;

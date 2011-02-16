@@ -17,7 +17,6 @@ class File extends \SplFileInfo
      * @var Repository The Git repository
      */
     protected $repository;
-
     /**
      * @var string Actual contents of the file
      */
@@ -94,7 +93,7 @@ class File extends \SplFileInfo
     public function save()
     {
         if (!$this->exists()) {
-            mkdir($this->getPath(), 0777, true); // @todo Configurable default chmod
+            @mkdir($this->getPath(), 0777, true); // @todo Configurable default chmod
             if (!\is_writable($this->getPath())) {
                 throw new InsufficientPermissionException(sprintf('Directory "%s" is not writable.', $this->getPath()));
             }
@@ -114,10 +113,10 @@ class File extends \SplFileInfo
      * @param string $hash Hash of the version
      * return string Historical content of the file
      */
-    public function getHistoricalContent($hash)
-    {
-        $content = $this->repository->git('cat-file -p %s:%s', escapeshellarg($hash), escapeshellarg($this->getFilename()));
-    }
+//    public function getHistoricalContent($hash)
+//    {
+//        $content = $this->repository->git('cat-file -p %s:%s', escapeshellarg($hash), escapeshellarg($this->getFilename()));
+//    }
 
     /**
      * Set the file to be committed at the next commit.
@@ -147,8 +146,10 @@ class File extends \SplFileInfo
      */
     public function commit($message, $author = null)
     {
+        $this->save();
+
         if (empty($message)) {
-            throw new \InvalidArgumentException(sprintf('Git commit message "%s" is not valid.', $message));
+            throw new \InvalidArgumentException('Commit message cannot be empty.');
         }
 
         if (null === $author) {
@@ -197,4 +198,31 @@ class File extends \SplFileInfo
         return $output;
     }
 
+    /**
+     * Get the hash of the current git object of the file.
+     *
+     * @param string|Commit $commitHash
+     * @return string Blob (file) or Tree (dir) hash
+     */
+    public function getHash($commit = 'HEAD')
+    {
+        if($commit instanceof Commit) {
+            $commit = $commit->getHash();
+        }
+
+        $output = $this->repository->git('ls-tree %s %s', escapeshellarg($commitHash), escapeshellarg($this->getRelativePathname()));
+
+        if (empty($output)) {
+            return null;
+        }
+
+        return \substr($output, 12, 40);
+    }
+
+    public function getExtension()
+    {
+        $pathinfo = \pathinfo($this->getPathname());
+
+        return isset($pathinfo['extension']) ? $pathinfo['extension'] : '';
+    }
 }
