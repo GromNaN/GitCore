@@ -31,6 +31,8 @@ class CommitTest extends TestCase
         $committer = new User('Lenny BARALAIR', 'lenny.baralair@commit.local');
         $this->assertEquals($committer, $commit->getCommitter(), 'Comitter infos are loaded');
         $this->assertTrue($commit->getCommittedDate() instanceof \DateTime, 'ComittedDate is a DateTime');
+
+        $this->assertEquals('CREATE FILE3', $commit->getMessage(), 'Message received');
     }
 
     public function testMultipleParents()
