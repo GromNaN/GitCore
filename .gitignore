@@ -1,1 +1,3 @@
-Resources/config/config.php
+/vendor
+/autoload.php
+/phpunit.xml
