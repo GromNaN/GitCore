@@ -1,12 +1,12 @@
 <?php
 
-namespace Git\Core\Tests;
+namespace Git\Tests;
 
 require_once __DIR__.'/TestCase.php';
 
-use Git\Core\Repository;
-use Git\Core\Commit;
-use Git\Core\Blob;
+use Git\Repository;
+use Git\Commit;
+use Git\Blob;
 
 class BlobTest extends TestCase
 {

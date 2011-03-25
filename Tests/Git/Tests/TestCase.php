@@ -1,16 +1,16 @@
 <?php
 
-namespace Git\Core\Tests;
+namespace Git\Tests;
 
 require_once __DIR__.'/../Ressources/autoload.php';
 
-use Git\Core\Repository;
+use Git\Repository;
 
 class TestCase extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @var Git\Core\Repository
+     * @var Git\Repository
      */
     protected static $repository;
 

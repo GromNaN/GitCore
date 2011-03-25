@@ -1,6 +1,6 @@
 <?php
 
-namespace Git\Core\Exception;
+namespace Git\Exception;
 
 /**
  * Exception handled when trying to open directory witch is not a Git repository.

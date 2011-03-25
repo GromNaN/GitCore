@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Git\Core;
+namespace Git;
 
 /**
  * A tree is a simple object that has a bunch of pointers to blobs and other trees.

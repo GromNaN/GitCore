@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Git\Core;
+namespace Git;
 
 /**
  * File versioned in a Git repository.
@@ -17,7 +17,7 @@ namespace Git\Core;
  * @author    Jérôme Tamarelle <jerome at tamarelle dot net>
  * @license   MIT License
  */
-use Git\Core\Exception\InsufficientPermissionException;
+use Git\Exception\InsufficientPermissionException;
 
 class File extends \SplFileInfo
 {

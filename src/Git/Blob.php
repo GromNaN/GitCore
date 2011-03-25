@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Git\Core;
+namespace Git;
 
 /**
  * A "blob" object is nothing but a chunk of binary data. It doesn't refer to

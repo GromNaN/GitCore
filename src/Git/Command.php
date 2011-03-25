@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Git\Core;
+namespace Git;
 
 /**
  * File versioned in a Git repository.
@@ -17,7 +17,7 @@ namespace Git\Core;
  * @author    Thibault Duplessis <thibault.duplessis at gmail dot com>
  *            Jérôme Tamarelle <jerome@tamarelle.net>
  */
-use Git\Core\Exception\GitRuntimeException;
+use Git\Exception\GitRuntimeException;
 
 class Command
 {

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Git\Core;
+namespace Git;
 
 /**
  * Every object consists of three things - a type, a size and content. There are

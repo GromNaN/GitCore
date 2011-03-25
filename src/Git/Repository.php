@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Git\Core;
+namespace Git;
 
-use Git\Core\Exception\GitInvalidArgumentException;
-use Git\Core\Exception\InvalidGitRepositoryDirectoryException;
+use Git\Exception\GitInvalidArgumentException;
+use Git\Exception\InvalidGitRepositoryDirectoryException;
 
 /**
  * Simple PHP wrapper for Git repository
@@ -39,7 +39,7 @@ class Repository
      */
     protected $options;
     protected static $defaultOptions = array(
-        'command_class' => 'Git\Core\Command', // class used to create a command
+        'command_class' => 'Git\Command', // class used to create a command
         'git_executable' => 'command git'  // path of the executable on the server
     );
 
@@ -129,7 +129,7 @@ class Repository
 
     /**
      * @param string $hash
-     * @return Git\Core\Commit
+     * @return Git\Commit
      */
     public function getCommit($hash)
     {
@@ -138,7 +138,7 @@ class Repository
 
     /**
      * @param string $hash
-     * @return Git\Core\Tree
+     * @return Git\Tree
      */
     public function getTree($hash)
     {
@@ -147,7 +147,7 @@ class Repository
 
     /**
      * @param string $hash
-     * @return Git\Core\Blob
+     * @return Git\Blob
      */
     public function getBlob($hash)
     {
@@ -191,7 +191,7 @@ class Repository
      *
      * @example $repository->git('show %s', $hash);
      *
-     * @throws  Git\Core\Exception\GitRuntimeException
+     * @throws  Git\Exception\GitRuntimeException
      * @param   string  $commandString
      * @return  string  $output
      */

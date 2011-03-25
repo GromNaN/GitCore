@@ -1,13 +1,13 @@
 <?php
 
-namespace Git\Core\Tests;
+namespace Git\Tests;
 
 require_once __DIR__.'/TestCase.php';
 
-use Git\Core\Repository;
-use Git\Core\Commit;
-use Git\Core\Tree;
-use Git\Core\Blob;
+use Git\Repository;
+use Git\Commit;
+use Git\Tree;
+use Git\Blob;
 
 class TreeTest extends TestCase
 {

@@ -1,3 +1,9 @@
 /vendor
 /autoload.php
 /phpunit.xml
+
+.svn
+.buildpath
+.project
+.settings
+nbproject

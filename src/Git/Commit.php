@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Git\Core;
+namespace Git;
 
 /**
  * Git commit.
@@ -103,7 +103,7 @@ class Commit extends Object
      * The tree object, representing the contents of a directory
      * at a certain point in time.
      *
-     * @return Git\Core\Tree
+     * @return Git\Tree
      */
     public function getTree()
     {
@@ -148,7 +148,7 @@ class Commit extends Object
     }
 
     /**
-     * @return Git\Core\User
+     * @return Git\User
      */
     public function getAuthor()
     {
@@ -164,7 +164,7 @@ class Commit extends Object
     }
 
     /**
-     * @return Git\Core\User
+     * @return Git\User
      */
     public function getCommitter()
     {
