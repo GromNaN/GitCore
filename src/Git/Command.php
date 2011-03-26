@@ -75,7 +75,7 @@ class Command
                 if (127 == $returnVar && empty($output)) { // Help for debugging
                     $output = 'Invalid Git executable';
                 }
-                var_dump($output);
+                
                 throw new GitRuntimeException(sprintf(
                     'Command %s failed with code %s: %s', $commandToRun, $returnVar, $output
                   ), $returnVar);

@@ -121,6 +121,11 @@ By replacing this option, you can use your own command implementation:
 
 ## Run test suite
 
-All code is fully unit tested. You will need PHPUnit to run tests, from a CLI:
+All code is fully unit tested. You will need PHPUnit to run tests.
+First create a copy of phpunit.xml.dist
+
+    cp phpunit.xml.dist phpunit.xml
+
+Then run the tests with PHPUnit:
 
     phpunit

@@ -27,6 +27,6 @@ class TestCase extends \PHPUnit_Framework_TestCase
         $debug = defined('GIT_DEBUG') && GIT_DEBUG;
         $options = defined('GIT_EXEC') ? array('git_executable' => GIT_EXEC) : array();
 
-        self::$repository = Repository::create($dir, false, $options);
+        self::$repository = new Repository($dir, false, $options);
     }
 }
