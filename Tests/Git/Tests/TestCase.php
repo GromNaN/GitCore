@@ -2,8 +2,6 @@
 
 namespace Git\Tests;
 
-require_once __DIR__.'/../Ressources/autoload.php';
-
 use Git\Repository;
 
 class TestCase extends \PHPUnit_Framework_TestCase

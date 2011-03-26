@@ -52,7 +52,7 @@ The git() method returns the output string:
 
 The git() method throws a GitRuntimeException if the command is invalid:
 
-    $repo->git('wtf'); // this git command does NOT exist: throw GitRuntimeException
+    $repo->git('wtf'); // this git command does NOT exist: throw Git\Exception\GitRuntimeException
 
 ## Get branches informations
 
@@ -87,34 +87,7 @@ You can get an array of the last commits on the current branch.
     $commits = $repo->getCommits(15);
     // returns an array of the 15 last commits
 
-Internally, this methods run `git log` with formatted output. The return value should look like:
-
-    Array
-    (
-        [0] => Array
-            (
-                [id] => affb0e84a11b4180b0fa0e5d36bdac73584f0d71
-                [tree] => 4b825dc642cb6eb9a060e54bf8d69288fbee4904
-                [author] => Array
-                    (
-                        [name] => ornicar
-                        [email] => myemail@gmail.com
-                    )
-
-                [authored_date] => 2010-09-22 19:17:35 +0200
-                [commiter] => Array
-                    (
-                        [name] => ornicar
-                        [email] => myemail@gmail.com
-                    )
-
-                [committed_date] => 2010-09-22 19:17:35 +0200
-                [message] => My commit message
-            )
-
-        [1] => Array
-            (
-                ...
+Internally, this methods run `git log` with formatted output. It returns an array of Git\Commit.
 
 The first commit is the more recent one.
 
@@ -148,6 +121,6 @@ By replacing this option, you can use your own command implementation:
 
 ## Run test suite
 
-All code is fully unit tested. To run tests on your server, from a CLI, run
+All code is fully unit tested. You will need PHPUnit to run tests, from a CLI:
 
-    php /path/to/php-git-repo/prove.php
+    phpunit
