@@ -54,7 +54,7 @@ class Tree extends Object
      */
     public function getObjects()
     {
-        $output = $this->repository->git('ls-tree --full-name %s', escapeshellarg($this->hash));
+        $output = $this->repository->git('ls-tree %s --full-name', escapeshellarg($this->getHash()));
 
         /**
          * The git ls-tree output looks like this:
