@@ -52,7 +52,7 @@ class Object
         if (null !== $hash
           && 'HEAD' != $hash
           && !\preg_match('/[0-9a-f]{40}/', $hash)) {
-            throw new GitInvalidArgumentException(sprintf('Invalid SHA1 hash "%s".', $hash));
+            throw new \InvalidArgumentException(sprintf('Invalid SHA1 hash "%s".', $hash));
         }
 
         $this->hash = $hash;

@@ -40,7 +40,7 @@ class Repository
     protected $options;
     protected static $defaultOptions = array(
         'command_class' => 'Git\Command', // class used to create a command
-        'git_executable' => 'command git'  // path of the executable on the server
+        'git_executable' => '/usr/local/bin/git'  // path of the executable on the server
     );
 
     /**

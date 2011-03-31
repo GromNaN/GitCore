@@ -28,8 +28,9 @@ class CommitTest extends TestCase
         $this->assertEquals($author, $commit->getAuthor(), 'Author infos are loaded');
         $this->assertTrue($commit->getAuthoredDate() instanceof \DateTime, 'AuthoredDate is a DateTime');
 
-        $committer = new User('Lenny BARALAIR', 'lenny.baralair@commit.local');
-        $this->assertEquals($committer, $commit->getCommitter(), 'Comitter infos are loaded');
+        $this->assertEquals('Lenny BARALAIR', $commit->getCommitter()->getName());
+        $this->assertEquals('lenny.baralair@commit.local', $commit->getCommitter()->getEmail());
+        $this->assertEquals('Lenny BARALAIR <lenny.baralair@commit.local>', strval($commit->getCommitter()));
         $this->assertTrue($commit->getCommittedDate() instanceof \DateTime, 'ComittedDate is a DateTime');
 
         $this->assertEquals('CREATE FILE3', $commit->getMessage(), 'Message received');
