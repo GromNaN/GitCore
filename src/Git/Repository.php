@@ -140,7 +140,7 @@ class Repository
      * @param string $hash
      * @return Git\Tree
      */
-    public function getTree($hash)
+    public function getTree($hash = 'HEAD')
     {
         return new Tree($this, $hash);
     }
