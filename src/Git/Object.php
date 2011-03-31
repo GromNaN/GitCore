@@ -49,8 +49,7 @@ class Object
     {
         $this->repository = $repository;
 
-        if (null !== $hash
-          && 'HEAD' != $hash
+        if ( 'HEAD' != $hash
           && !\preg_match('/[0-9a-f]{40}/', $hash)) {
             throw new \InvalidArgumentException(sprintf('Invalid SHA1 hash "%s".', $hash));
         }
