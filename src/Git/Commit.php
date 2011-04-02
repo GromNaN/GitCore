@@ -37,7 +37,7 @@ class Commit extends Object
 
         if (!empty($output)) {
             foreach (explode("\n", $output) as $line) {
-                $commit = new Commit($repository);
+                $commit = new Commit($repository, 'HEAD');
                 $commit->init($line);
                 $commits[$commit->getHash()] = $commit;
             }
