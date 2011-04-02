@@ -39,7 +39,10 @@ class File extends \SplFileInfo
      */
     public function __construct(Repository $repository, $file_name)
     {
-        parent::__construct($repository->getDir().'/'.$file_name);
+        if('/' != $file_name{0}) {
+            $file_name = $repository->getDir().'/'.$file_name;
+        }
+        parent::__construct($file_name);
         $this->repository = $repository;
         $this->setInfoClass(__CLASS__);
     }
